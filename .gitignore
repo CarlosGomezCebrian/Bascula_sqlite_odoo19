@@ -1,0 +1,63 @@
+# .gitignore para Bascula_sqlite_odoo
+
+# ARCHIVOS DE BASE DE DATOS
+scale_app_DB.db
+*.db
+*.sqlite
+*.sqlite3
+
+# CARPETAS GENERADAS (ignorar contenido pero mantener estructura)
+/logs/*
+!/logs/.gitkeep
+/exports/*
+!/exports/.gitkeep
+/temp/*
+!/temp/.gitkeep
+
+
+# ARCHIVOS TEMPORALES Y DE CONFIGURACIÓN
+*.txt
+*.png
+*.jpg
+*.jpeg
+*.svg
+# ARCHIVOS DE ENTORNO Y SENSIBLES
+.env
+*.env
+config_local.py
+settings_local.py
+crear_icono.py
+diagnostic_scale.py
+
+# CARPETA DE CACHÉ DE PYTHON
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# ENTORNOS VIRTUALES
+venv/
+env/
+ENV/
+
+# ARCHIVOS DE IDE/EDITOR
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# ARCHIVOS DEL SISTEMA OPERATIVO
+.DS_Store
+Thumbs.db
+ehthumbs.db
+
+# ARCHIVOS DE LOG ADICIONALES
+*.log
+*.log.*
+
+# ARCHIVOS DE DISTRIBUCIÓN/EMPAQUETADO
+/dist/
+/build/
+*.egg-info/
