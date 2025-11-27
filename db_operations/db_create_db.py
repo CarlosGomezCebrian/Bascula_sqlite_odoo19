@@ -6,6 +6,7 @@ def create_database():
     """
     Crea la base de datos y las tablas para la aplicación de pesaje de vehiculos.
     """
+    conn = None
     try:
         conn = sqlite3.connect('scale_app_DB.db')
         cursor = conn.cursor()
@@ -20,13 +21,14 @@ def create_database():
                 access_level INTEGER NOT NULL,
                 active_user INTEGER NOT NULL,
                 change_password_date TEXT,
-	            user_create	INTEGER,
-	            user_changes  INTEGER,
+                user_create	INTEGER,
+                user_changes  INTEGER,
                 user_change_password INTEGER,
+                user_level_change INTEGER,
                 date_last_change TEXT,
                 FOREIGN KEY("user_change_password") REFERENCES "users"("id_user"),
-	            FOREIGN KEY("user_create") REFERENCES "users"("id_user"),
-	            FOREIGN KEY("user_level_change") REFERENCES "users"("id_user")
+                FOREIGN KEY("user_create") REFERENCES "users"("id_user"),
+                FOREIGN KEY("user_level_change") REFERENCES "users"("id_user")
             );
         ''')
 
@@ -49,7 +51,7 @@ def create_database():
                 external_id_vehicle INTEGER,
                 plates TEXT NOT NULL UNIQUE,
                 vehicle_type TEXT NOT NULL,
-                vehicle_tara NTEGER NOT NULL DEFAULT 0,
+                vehicle_tara INTEGER NOT NULL DEFAULT 0, 
                 active_vehicle INTEGER NOT NULL
             );
         ''')
@@ -88,6 +90,21 @@ def create_database():
         ''')
 
         cursor.execute('''
+            CREATE TABLE IF NOT EXISTS folio_history (
+                id_history INTEGER PRIMARY KEY,
+                id_weighing INTEGER,
+                folio_number TEXT NOT NULL,
+                previous_value TEXT,
+                new_value TEXT,
+                datetime_modification TEXT NOT NULL,
+                id_user_modificacion INTEGER,
+                history_notes TEXT,
+                FOREIGN KEY (id_weighing) REFERENCES weighing_records(id_weighing),
+                FOREIGN KEY (id_user_modificacion) REFERENCES users(id_user)
+            );
+        ''')
+
+        cursor.execute('''
             CREATE TABLE IF NOT EXISTS weighing_records (
                     id_weighing INTEGER PRIMARY KEY,
                     folio_number TEXT UNIQUE NOT NULL,
@@ -113,28 +130,13 @@ def create_database():
                     id_user INTEGER,
                     id_user_closed INTEGER,
                     FOREIGN KEY("id_changes") REFERENCES "folio_history"("id_history"),
-                    FOREIGN KEY (id_customer) REFERENCES customers(external_id_customer),
+                    FOREIGN KEY (id_customer) REFERENCES customers(id_customer),
                     FOREIGN KEY (id_vehicle) REFERENCES vehicles(id_vehicle),
-                    FOREIGN KEY (id_trailer) REFERENCES trailer(id_trailer),
-                    FOREIGN KEY (id_driver) REFERENCES drivers (id_driver),
+                    FOREIGN KEY (id_trailer) REFERENCES trailers(id_trailer), 
+                    FOREIGN KEY (id_driver) REFERENCES drivers(id_driver),
                     FOREIGN KEY (id_material) REFERENCES materials(id_material),
-                    FOREIGN KEY (id_user) REFERENCES users (id_user)
-                    FOREIGN KEY (id_user_closed) REFERENCES users (id_user)
-);
-        ''')
-
-        cursor.execute('''
-            CREATE TABLE IF NOT EXISTS folio_history (
-                id_history INTEGER PRIMARY KEY,
-                id_weighing INTEGER,
-                folio_number TEXT NOT NULL,
-                previous_value TEXT,
-                new_value TEXT,
-                datetime_modification TEXT NOT NULL,
-                id_user_modificacion INTEGER,
-                history_notes TEXT,
-                FOREIGN KEY (id_weighing) REFERENCES weighing_records(id_weighing),
-                FOREIGN KEY (id_user_modificacion) REFERENCES users(id_user)
+                    FOREIGN KEY (id_user) REFERENCES users(id_user), 
+                    FOREIGN KEY (id_user_closed) REFERENCES users(id_user)
             );
         ''')
 
@@ -157,13 +159,15 @@ def create_database():
             );
         ''')
 
-
         _insert_default_external_records(cursor)
+        _insert_default_settings(cursor)
         conn.commit()
         print("Base de datos y tablas creadas exitosamente.")
+        return True
 
     except sqlite3.Error as e:
         print(f"Error al crear la base de datos: {e}")
+        return False
 
     finally:
         if conn:
@@ -186,13 +190,13 @@ def _insert_default_external_records(cursor):
         INSERT OR IGNORE INTO vehicles (
             external_id_vehicle, plates, vehicle_type, vehicle_tara, active_vehicle
         ) VALUES (?, ?, ?, ?, ?)
-    ''', (0, 'VEHEXT', 'Vehículo externo',0, 1))
+    ''', (0, 'VEHEXT', 'Vehículo externo', 0, 1))
 
     cursor.execute('''
         INSERT OR IGNORE INTO trailers (
             external_id_trailer, trailer_name, category_trailer, equipo_tara, active_trailer
         ) VALUES (?, ?, ?, ?, ?)
-    ''', (0, 'Sin remolque', 'Extena', 0, 1))
+    ''', (0, 'Sin remolque', 'Externa', 0, 1))  # Corregido: Extena -> Externa
 
     cursor.execute('''
         INSERT OR IGNORE INTO vehicles (
@@ -213,10 +217,21 @@ def _insert_default_external_records(cursor):
             external_id_material, material_name, udm, category, spd, active_material
         ) VALUES (?, ?, ?, ?, ?, ?)
     ''', (0, 'Material externo', 'kg', 'Externo', 0, 1))
-    
 
-""" 
+
+def _insert_default_settings(cursor):
+    """Insertar configuraciones por defecto"""
+    default_settings = [
+        ('company_name', 'Mi Empresa'),
+        ('company_address', 'Dirección de la empresa')
+    ]
     
+    for key, value in default_settings:
+        cursor.execute('''
+            INSERT OR IGNORE INTO app_settings (setting_key, setting_value)
+            VALUES (?, ?)
+        ''', (key, value))
+
+
 if __name__ == '__main__':
     create_database()
-"""

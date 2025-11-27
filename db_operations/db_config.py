@@ -224,11 +224,11 @@ def get_company_config():
         if all(key in config and config[key] for key in required_keys):
             return config
         else:
-            return None
+            return {}
             
     except sqlite3.Error as e:
         print(f"Error al obtener la configuración de Odoo: {e}")
-        return None
+        return {}
     finally:
         if conn:
             conn.close()

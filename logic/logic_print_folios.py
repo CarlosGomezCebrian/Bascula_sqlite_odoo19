@@ -21,9 +21,10 @@ USB_PRODUCT_ID = 0x0E03
 
 # Ruta del logotipo
 COMPANY_DATA = get_company_config()
-IMAGE_PATH = COMPANY_DATA.get('company_logo_path_print')
-COMPANY_ADDRESS = COMPANY_DATA.get('company_address')
-COMPANY_NAME = COMPANY_DATA.get('company_name').upper()
+if COMPANY_DATA:
+    IMAGE_PATH = COMPANY_DATA.get('company_logo_path_print')
+    COMPANY_ADDRESS = COMPANY_DATA.get('company_address')
+    COMPANY_NAME = COMPANY_DATA.get('company_name').upper()
 WIDTH_TITLE = 30
 WIDTH_LINE = 60
 WIDTH_TEXT = 40

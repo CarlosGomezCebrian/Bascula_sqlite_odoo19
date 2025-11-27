@@ -138,7 +138,8 @@ class MainApp:
         header_frame.pack_propagate(False)
 
         COMPANY_DATA = get_company_config()
-        COMPANY_NAME = COMPANY_DATA.get('company_name').upper()
+        company_name = COMPANY_DATA.get('company_name')
+    
         
         logo_width=70
         Logo_height=50
@@ -154,7 +155,7 @@ class MainApp:
         title_label = ttk.Label(header_frame, text="Sistema de Báscula", style="Header.TLabel")
         title_label.pack(side=tk.LEFT, padx=20)
 
-        company_name = ttk.Label(header_frame, text=COMPANY_NAME, style="Header.TLabel")
+        company_name = ttk.Label(header_frame, text=company_name, style="Header.TLabel")
         company_name.pack(side=tk.LEFT, padx=80)
 
         user_name_label = ttk.Label(header_frame, text=f"Hola  {self.user_name}", style="Header.TLabel")

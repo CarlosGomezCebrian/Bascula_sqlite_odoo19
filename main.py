@@ -4,6 +4,7 @@ import os
 import sys
 import subprocess
 import tkinter as tk
+import sqlite3
 from db_operations.db_create_db import create_database
 from db_operations.db_operations import check_and_create_admin_user
 from ui.ui_login import LoginApp
@@ -20,6 +21,22 @@ def setup_environment():
             os.makedirs(directory)
             app_logger.info(f"Directorio creado: {directory}")
 
+def check_database_tables():
+    """Verificar si las tablas esenciales existen en la base de datos"""
+    try:
+        conn = sqlite3.connect('scale_app_DB.db')
+        cursor = conn.cursor()
+        
+        # Verificar si la tabla de usuarios existe (tabla clave)
+        cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='users'")
+        table_exists = cursor.fetchone() is not None
+        
+        conn.close()
+        return table_exists
+    except Exception as e:
+        app_logger.error(f"Error al verificar tablas de la base de datos: {e}")
+        return False
+
 def main():
     """
     Función principal de la aplicación Bascula_sqlite_odoo.
@@ -32,15 +49,18 @@ def main():
         # Configurar entorno
         setup_environment()
         
-        # Verificar y crear base de datos
-        if not os.path.exists('scale_app_DB.db'):
-            app_logger.warning("La base de datos no existe. Creándola...")
+        # Verificar y crear base de datos - CORREGIDO
+        if not os.path.exists('scale_app_DB.db') or not check_database_tables():
+            app_logger.warning("La base de datos no existe o está incompleta. Creándola...")
             scale_logger.info("Iniciando creación de base de datos")
             
-            create_database()
-            
-            app_logger.info("Base de datos creada exitosamente")
-            scale_logger.info("Proceso de creación de base de datos finalizado")
+            success = create_database()
+            if success:
+                app_logger.info("Base de datos creada exitosamente")
+                scale_logger.info("Proceso de creación de base de datos finalizado")
+            else:
+                app_logger.error("Falló la creación de la base de datos")
+                raise Exception("No se pudo crear la base de datos")
         else:
             app_logger.info("Base de datos encontrada y verificada")
         

@@ -63,9 +63,15 @@ class DialogWindows:
         self.entry_company_name.grid(row=1, column=1, pady=10, sticky="ew")
         self.entry_company_name.focus()
 
+        company_name_value = "Trébol Gestor de Residuos Industriales, S.A. de C.V."
+        self.entry_company_name.insert(0, company_name_value)
+
         tk.Label(frame_logo, text="Dirección:", bg=self.styles.secondary_color, font=self.styles.font_title, fg=self.styles.primary_color).grid(row=2, column=0, pady=10, sticky="w")
         self.entry_address = tk.Entry(frame_logo, font=self.styles.font_title, bg="#FFFFFF", fg=self.styles.entry_second_color)
         self.entry_address.grid(row=2, column=1, pady=10, sticky="ew")
+
+        address_value = "Carretera a El Salto 28200, Colonia El Muelle, C.P. 45683, El Salto, Jalisco"
+        self.entry_address.insert(0, address_value)
 
         tk.Label(frame_logo, text="Puerto báscula:", bg=self.styles.secondary_color, font=self.styles.font_title, fg=self.styles.primary_color).grid(row=3, column=0, pady=10, sticky="w")
         self.entry_port_scale = tk.Entry(frame_logo, font=self.styles.font_title, bg="#FFFFFF", fg=self.styles.entry_second_color)
@@ -160,23 +166,32 @@ class DialogWindows:
     def configure_odoo_api(self):
         self.odoo_config_window = tk.Toplevel(self.root)
         self.odoo_config_window.title("Configuración de Conexión a Odoo")
-        self.odoo_config_window.geometry("450x300")
+        self.odoo_config_window.geometry("550x300")
         self.odoo_config_window.config(bg=self.styles.secondary_color)
 
         frame = tk.Frame(self.odoo_config_window, bg=self.styles.secondary_color, padx=20, pady=20)
         frame.pack(expand=True)
 
-        tk.Label(frame, text="URL de Odoo:", bg=self.styles.secondary_color, font=self.styles.font_title, fg=self.styles.primary_color).grid(row=0, column=0, pady=5, sticky="w")
+        tk.Label(frame, text="URL de Odoo:", bg=self.styles.secondary_color, font=self.styles.font_title, fg=self.styles.primary_color).grid(row=0, column=0, pady=5, sticky="w")        
         self.entry_odoo_url = tk.Entry(frame, font=self.styles.font_title, bg="#FFFFFF", fg=self.styles.entry_second_color)
         self.entry_odoo_url.grid(row=0, column=1, pady=5, sticky="ew")
+
+        odoo_url_value = "https://grupotrebol.odoo.com"
+        self.entry_odoo_url.insert(0, odoo_url_value)
 
         tk.Label(frame, text="Nombre de la Base de Datos:", bg=self.styles.secondary_color, font=self.styles.font_title, fg=self.styles.primary_color).grid(row=1, column=0, pady=5, sticky="w")
         self.entry_db_name = tk.Entry(frame, font=self.styles.font_title, bg="#FFFFFF", fg=self.styles.entry_second_color)
         self.entry_db_name.grid(row=1, column=1, pady=5, sticky="ew")
 
+        db_name_value = "grupotrebol"
+        self.entry_db_name.insert(0, db_name_value)
+
         tk.Label(frame, text="Correo de Usuario API:", bg=self.styles.secondary_color, font=self.styles.font_title, fg=self.styles.primary_color).grid(row=2, column=0, pady=5, sticky="w")
         self.entry_api_user_email = tk.Entry(frame, font=self.styles.font_title, bg="#FFFFFF", fg=self.styles.entry_second_color)
         self.entry_api_user_email.grid(row=2, column=1, pady=5, sticky="ew")
+
+        api_user_email_value = "general@grupotrebol.net"
+        self.entry_api_user_email.insert(0, api_user_email_value)
 
         tk.Label(frame, text="API Key:", bg=self.styles.secondary_color, font=self.styles.font_title, fg=self.styles.primary_color).grid(row=3, column=0, pady=5, sticky="w")
         self.entry_api_key = tk.Entry(frame, show="*", font=self.styles.font_title, bg="#FFFFFF", fg=self.styles.entry_second_color)
