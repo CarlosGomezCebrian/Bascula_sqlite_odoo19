@@ -1,7 +1,6 @@
 # db_connect.py
 
 import sqlite3
-from datetime import datetime
 
 class DatabaseManager:
     def __init__(self, db_path="scale_app_DB.db"):

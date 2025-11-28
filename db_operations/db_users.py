@@ -2,7 +2,6 @@
 import datetime
 import bcrypt
 from  db_operations.db_connect import DatabaseManager
-#from  db_connect import DatabaseManager
 from typing import List, Dict, Optional
 
 class Users:

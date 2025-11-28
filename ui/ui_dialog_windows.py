@@ -2,6 +2,8 @@
 
 from tkinter import messagebox, ttk
 import tkinter as tk
+import sys
+import os
 from  db_operations.db_users import Users
 from  db_operations.db_odoo_config import OdooConfig
 from logic.logic_odoo_api import test_odoo_connection
@@ -258,18 +260,41 @@ class DialogWindows:
         new_password = self.entry_new_password.get()
 
         if new_password and self.user_id_cpw:
-            if  self.db_users.change_password(self.user_id_cpw, new_password, self.user_id_cpw):
-                messagebox.showinfo("Éxito", f"El usuario '{self.user_name_cpw}' cambio  correctamente  la  contraseña.", parent=self.add_change_password_window)
+            if self.db_users.change_password(self.user_id_cpw, new_password, self.user_id_cpw):
+                messagebox.showinfo("Éxito", f"El usuario '{self.user_name_cpw}' cambió correctamente la contraseña.", parent=self.add_change_password_window)
                 self.add_change_password_window.destroy()
-                import os
-                os.environ['RESTART_APP'] = '1'
                 
-                self.root.destroy()
-
-            else:
-                messagebox.showerror("Error", "Error al guardar la contraseña.", parent=self.add_change_password_window)
+                # Método de reinicio más seguro
+                self.safe_restart()
+        
         else:
             messagebox.showerror("Error", "El campo contraseña está vacío.", parent=self.add_change_password_window)
+
+    def safe_restart(self):
+        """Reinicio seguro que evita problemas con PyInstaller"""
+        try:
+            # Cerrar todas las ventanas
+            self.root.destroy()
+            
+            # Mensaje informativo
+            print("Reiniciando aplicación...")
+            
+            # En desarrollo
+            if not getattr(sys, 'frozen', False):
+                python = sys.executable
+                os.execl(python, python, *sys.argv)
+            else:
+                # En ejecutable - mostrar mensaje y salir
+                messagebox.showinfo(
+                    "Reinicio requerido", 
+                    "La aplicación se cerrará. Por favor, ábrala manualmente para aplicar los cambios."
+                )
+                sys.exit(0)
+                
+        except Exception as e:
+            print(f"Error en reinicio: {e}")
+            sys.exit(1)
+
 
     def cancel_change_password(self):
         self.add_change_password_window.destroy()

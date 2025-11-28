@@ -1,12 +1,12 @@
 # db_odoo_save_folio.py
 
 from db_operations.db_connect import DatabaseManager
-from utils.logger_config import app_logger  # ✅ Logger centralizado
+from utils.logger_config import app_logger 
 from typing import List, Dict
 
 class OdooDBManager:
     def __init__(self, folio_id):
-        # ✅ Logger específico para Odoo DB
+        
         self.logger = app_logger.getChild('OdooDBManager')
         self.logger.info(f"🚀 Inicializando OdooDBManager para folio_id: {folio_id}")
         

@@ -18,13 +18,13 @@ def check_and_create_admin_user():
         if user_count == 0:
             print("No se encontraron usuarios. Creando usuario administrador por defecto...")
 
-            password = b"admin123"
+            password = b"Admin123"
             hashed_password = bcrypt.hashpw(password, bcrypt.gensalt())
 
             cursor.execute('''
                 INSERT INTO users (user_name, creation_date, user_email, password_hash, access_level, active_user, change_password_date, user_create)
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?);
-            ''', ('admin',current_date_time, 'admin@example.com', hashed_password.decode('utf-8'),4 , 1, current_date_time, 1))
+            ''', ('Admin',current_date_time, 'admin@example.com', hashed_password.decode('utf-8'),4 , 1, current_date_time, 1))
             
             conn.commit()
             print("Usuario administrador 'admin' creado exitosamente.")

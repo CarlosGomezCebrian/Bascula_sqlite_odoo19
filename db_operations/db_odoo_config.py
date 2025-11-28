@@ -1,8 +1,5 @@
 # db_operations.py
 
-import datetime
-import sqlite3
-import bcrypt
 from db_operations.db_connect import DatabaseManager
 
 

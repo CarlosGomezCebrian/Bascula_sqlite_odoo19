@@ -10,6 +10,35 @@ from db_operations.db_operations import check_and_create_admin_user
 from ui.ui_login import LoginApp
 from utils.logger_config import app_logger, scale_logger  # Importar el logger
 
+def setup_icon(root_window):
+    """Configura el icono para la ventana principal"""
+    try:
+        if getattr(sys, 'frozen', False):
+            # Estamos en un .exe - buscar icono en _MEIPASS o directorio actual
+            base_path = sys._MEIPASS
+            icon_path = os.path.join(base_path, 'icono_app.ico')
+            
+            # Si no está en _MEIPASS, buscar en el directorio del ejecutable
+            if not os.path.exists(icon_path):
+                exe_dir = os.path.dirname(sys.executable)
+                icon_path = os.path.join(exe_dir, 'icono_app.ico')
+        else:
+            # Estamos en desarrollo
+            icon_path = 'icono_app.ico'
+        
+        if os.path.exists(icon_path):
+            root_window.iconbitmap(icon_path)
+            app_logger.info(f"✅ Icono cargado: {icon_path}")
+            return True
+        else:
+            app_logger.warning(f"⚠️ Icono no encontrado en: {icon_path}")
+            return False
+            
+    except Exception as e:
+        app_logger.error(f"❌ Error al cargar icono: {e}")
+        return False
+
+
 def setup_environment():
     """Configuración inicial del entorno"""
     app_logger.info("Iniciando configuración del entorno de la aplicación")
@@ -36,6 +65,18 @@ def check_database_tables():
     except Exception as e:
         app_logger.error(f"Error al verificar tablas de la base de datos: {e}")
         return False
+    
+def verify_critical_modules():
+    """Verifica que los módulos críticos estén disponibles"""
+    try:
+        import bcrypt
+        # Forzar la importación del módulo nativo
+        from bcrypt import _bcrypt
+        app_logger.info("✅ Módulo bcrypt._bcrypt verificado correctamente")
+        return True
+    except ImportError as e:
+        app_logger.error(f"❌ Error crítico: bcrypt._bcrypt no disponible - {e}")
+        return False
 
 def main():
     """
@@ -46,10 +87,13 @@ def main():
         app_logger.info("INICIANDO APLICACIÓN BÁSCULA SQLITE ODOO")
         app_logger.info("=" * 50)
         
+        if not verify_critical_modules():
+            app_logger.critical("Módulos críticos no disponibles - Abortando")
+            raise ImportError("El módulo bcrypt._bcrypt no está disponible")
         # Configurar entorno
         setup_environment()
         
-        # Verificar y crear base de datos - CORREGIDO
+        # Verificar y crear base de datos
         if not os.path.exists('scale_app_DB.db') or not check_database_tables():
             app_logger.warning("La base de datos no existe o está incompleta. Creándola...")
             scale_logger.info("Iniciando creación de base de datos")
@@ -79,6 +123,9 @@ def main():
         
         root = tk.Tk()
         app_logger.debug("Ventana principal Tkinter creada")
+        
+        # 🔥 CONFIGURAR ICONO - AGREGAR ESTA LÍNEA
+        setup_icon(root)
         
         LoginApp(root)
         app_logger.info("Aplicación de login inicializada")

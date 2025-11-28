@@ -21,6 +21,7 @@ scale_app_DB.db
 *.jpg
 *.jpeg
 *.svg
+*.ico
 # ARCHIVOS DE ENTORNO Y SENSIBLES
 .env
 *.env
@@ -61,3 +62,4 @@ ehthumbs.db
 /dist/
 /build/
 *.egg-info/
+/img/

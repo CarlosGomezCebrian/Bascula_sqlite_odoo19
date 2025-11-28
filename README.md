@@ -14,12 +14,6 @@ Actualización de datos (clientes, productos, vehículos) desde Odoo.
 
 Guardado de los registros de pesaje (Tara, Bruto, Neto) en un modelo específico dentro de Odoo.
 
-Reportes y Exportación: Herramientas para generar documentos o reportes (dado el uso de librerías como reportlab, openpyxl, xlwt, PyPDF2).
-
-¡Claro! Con gusto puedo crear un borrador de README para tu aplicación de báscula de pesaje.
-
-Este README está basado en la lista de dependencias de Python que proporcionaste, las cuales sugieren el uso de librerías como psycopg2 (para Odoo/PostgreSQL), sqlite3 (implícito o nativo de Python para SQLite), pyserial o pyusb (para comunicación con la báscula), y otras para generación de reportes (reportlab, openpyxl, xlrd, etc.) y utilidades.
-
 📄 README: Sistema de Pesaje para Vehículos (Báscula)
 Este proyecto implementa una aplicación de báscula de pesaje diseñada para registrar el peso de tráilers y camionetas. Se encarga de la comunicación con el dispositivo de pesaje, la gestión de datos en una base de datos local SQLite, y la sincronización con un sistema Odoo ERP para la gestión centralizada de la información de pesaje.
 
@@ -35,8 +29,6 @@ Integración con Odoo:
 Actualización de datos (clientes, productos, vehículos) desde Odoo.
 
 Guardado de los registros de pesaje (Tara, Bruto, Neto) en un modelo específico dentro de Odoo.
-
-Reportes y Exportación: Herramientas para generar documentos o reportes (dado el uso de librerías como reportlab, openpyxl, xlwt, PyPDF2).
 
 🛠️ Requisitos del Sistema
 Para ejecutar esta aplicación, necesitarás:
@@ -63,15 +55,13 @@ Acceso a la Base de Datos Odoo: Credenciales de conexión válidas para la base 
 3. Configuración de ConexionesDebe configurar los parámetros de  
     conexión para la Báscula, la base de datos SQLite (ruta del archivo) y la base de datos Odoo (host, puerto, base de datos, usuario y contraseña).
    Estos parámetros se configuran una vez abierta la aplicacion en el menu de configuracion,
-   TOML[ODDO_DB]
-   host = 127.0.0.1
-   port = 5432
+
    dbname = odoo_database_name
    user = odoo_user
    password = odoo_password
 
    [WEIGHBRIDGE]
-   port = COM3 ; o /dev/ttyUSB0, dependiendo del sistema
+   port = COM4 ; o /dev/ttyUSB0, dependiendo del sistema
    baudrate = 9600
    timeout = 1
 
@@ -97,4 +87,4 @@ Acceso a la Base de Datos Odoo: Credenciales de conexión válidas para la base 
    psycopg2: Conexión a la base de datos Odoo/PostgreSQL
    pyserial/pyusb: Comunicación con el hardware de la báscula
    zeep: Comunicación con servicios web (posiblemente Odoo)
-   reportlab, openpyxl, PyPDF2: Funcionalidades de generación de reportes10.
+   reportlab, PyPDF2: Funcionalidades de generación de pdf.

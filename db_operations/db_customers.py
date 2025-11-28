@@ -1,7 +1,6 @@
 # db_customers.py
 
 from  db_operations.db_connect import DatabaseManager
-from typing import List, Dict, Optional
 
 class Customers:
     def __init__(self):

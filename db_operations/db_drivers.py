@@ -1,7 +1,6 @@
 # db_drivers.py
 
 from  db_operations.db_connect import DatabaseManager
-from typing import List, Dict, Optional
 
 class Drivers:
     def __init__(self):
