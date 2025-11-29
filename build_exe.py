@@ -1,4 +1,4 @@
-# build_exe_definitivo.py
+# build_exe.py
 import os
 import subprocess
 import sys
@@ -122,7 +122,7 @@ def build_executable():
     escpos_path, json_files = find_escpos_files()
     
     # Verificar estructura de la app
-    required_items = ['db_operations', 'logic', 'ui', 'utils', 'scale_app_DB.db']
+    required_items = ['db_operations', 'logic', 'ui', 'utils', 'img', 'scale_app_DB.db', 'sqlite3.exe']
     print("🔍 Verificando estructura...")
     for item in required_items:
         if not os.path.exists(item):
@@ -146,14 +146,14 @@ def build_executable():
         '--collect-all=cffi',
     ])
     
-    # Agregar datos de la aplicación
+    # Agregar datos de la aplicación - INCLUYENDO IMG
     current_dir = os.getcwd()
     cmd.extend([
         f'--add-data={os.path.join(current_dir, "db_operations")};db_operations',
         f'--add-data={os.path.join(current_dir, "logic")};logic',
         f'--add-data={os.path.join(current_dir, "ui")};ui',
         f'--add-data={os.path.join(current_dir, "utils")};utils',
-        #f'--add-data={os.path.join(current_dir, "img")};img',
+        f'--add-data={os.path.join(current_dir, "img")};img',  # ¡AGREGADO!
         f'--add-data={os.path.join(current_dir, "scale_app_DB.db")};.',
         f'--add-data={os.path.join(current_dir, "icono_app.ico")};.',
     ])
@@ -241,11 +241,19 @@ def create_complete_distribution():
         shutil.copy2(exe_source, os.path.join(dist_folder, 'BasculaSQLiteOdoo.exe'))
         
         # Copiar archivos esenciales
-        files_to_copy = ['icono_app.ico', 'scale_app_DB.db', 'README.md']
+        files_to_copy = ['icono_app.ico', 'scale_app_DB.db', 'README.md', 'sqlite3.exe']
         for file in files_to_copy:
             if os.path.exists(file):
                 shutil.copy2(file, dist_folder)
                 print(f"  ✅ {file}")
+        
+        # ¡COPIAR CARPETA IMG COMPLETA!
+        if os.path.exists('img'):
+            img_dest = os.path.join(dist_folder, 'img')
+            if os.path.exists(img_dest):
+                shutil.rmtree(img_dest)
+            shutil.copytree('img', img_dest)
+            print(f"  ✅ Carpeta 'img' copiada completa")
         
         # Crear archivos de configuración
         create_config_files(dist_folder)
@@ -298,6 +306,7 @@ def create_config_files(dist_folder):
 
 🆘 SOPORTE:
 - Logs: carpeta 'logs/'
+- Imágenes: carpeta 'img/'
 - Base de datos: 'scale_app_DB.db'
 
 © 2025 - Sistema Integrado de Báscula
@@ -376,7 +385,7 @@ def find_bcrypt_binary():
     
 
 def force_find_bcrypt():
-    """Búsqueda forzada de archivos bcrypt en el sistema"""
+    """Búsqueda forzada de archivos bcFrypt en el sistema"""
     import site
     bcrypt_files = []
     
@@ -427,6 +436,7 @@ if __name__ == "__main__":
         print("   ✅ SQLite3 completo")
         print("   ✅ Icono personalizado")
         print("   ✅ Impresión ESC/POS")
+        print("   ✅ Carpeta 'img' con todas las imágenes")
         print("   ✅ Documentación completa")
     else:
         print("\n💥 Error en el proceso de empaquetado")

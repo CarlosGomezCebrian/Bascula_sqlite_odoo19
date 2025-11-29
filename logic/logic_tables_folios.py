@@ -119,7 +119,11 @@ class FoliosWeighingsTable:
         
         for col, (heading, width, anchor) in column_config.items():
             self.folioTree.heading(col, text=heading)
-            self.folioTree.column(col, width=width, minwidth=width, anchor=anchor)
+        
+            if width == 0:
+                self.folioTree.column(col, width=0, minwidth=0, stretch=False)
+            else:
+                self.folioTree.column(col, width=width, minwidth=width, anchor=anchor, stretch=False)
         
         # Scrollbar vertical
         v_scrollbar = ttk.Scrollbar(table_container, orient=tk.VERTICAL, command=self.folioTree.yview)

@@ -5,6 +5,7 @@ scale_app_DB.db
 *.db
 *.sqlite
 *.sqlite3
+*.exe
 
 # CARPETAS GENERADAS (ignorar contenido pero mantener estructura)
 /logs/*
@@ -22,6 +23,7 @@ scale_app_DB.db
 *.jpeg
 *.svg
 *.ico
+*.spec
 # ARCHIVOS DE ENTORNO Y SENSIBLES
 .env
 *.env

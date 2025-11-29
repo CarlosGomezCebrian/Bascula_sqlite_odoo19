@@ -104,9 +104,16 @@ class PendingWeighingsTable:
             'equipo_tara':('-', 0, 'w')
         }
         
+        
         for col, (heading, width, anchor) in column_config.items():
             self.tree.heading(col, text=heading)
-            self.tree.column(col, width=width, minwidth=width, anchor=anchor)
+        
+        # Si width es 0, ocultar la columna completamente
+            if width == 0:
+                self.tree.column(col, width=0, minwidth=0, stretch=False)
+            else:
+                self.tree.column(col, width=width, minwidth=width, anchor=anchor, stretch=True)
+            
         
         # Scrollbar vertical
         v_scrollbar = ttk.Scrollbar(table_container, orient=tk.VERTICAL, command=self.tree.yview)

@@ -103,7 +103,7 @@ class LoginApp:
         user_access_level, user_id = verify_login(user_name, password)
         
         if user_access_level is not None:
-            messagebox.showinfo("Éxito", "¡Inicio de sesión exitoso!")
+            #messagebox.showinfo("Éxito", "¡Inicio de sesión exitoso!")
             self.transition_to_main_app(user_access_level, user_id, user_name)
             login_successful = True
         else:
@@ -121,7 +121,7 @@ class LoginApp:
         for widget in self.root.winfo_children():
             widget.destroy()        
         # Configurar ventana principal
-        self.root.title("Aplicación de bascula")        
+        self.root.title("Aplicación de báscula")        
         # Calcular posición centrada
         screen_width = self.root.winfo_screenwidth()
         screen_height = self.root.winfo_screenheight()
