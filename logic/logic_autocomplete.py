@@ -92,7 +92,8 @@ class AutocompleteHandler:
             parent, 
             items=self.mappings.get('vehicles_names', []),
             mapping_dict=self.mappings.get('vehicles', {}),
-            width=40, 
+            width=35,
+            height=12, 
             placeholder="Seleccione un vehículo..."
         )
         self.entries['vehicles'] = entry        
@@ -103,7 +104,8 @@ class AutocompleteHandler:
             parent, 
             items=self.mappings.get('trailers_names', []),
             mapping_dict=self.mappings.get('trailers', {}),
-            width=40, 
+            width=35,
+            height=12, 
             placeholder="Seleccione un remolque/contenedor..."
         )
         self.entries['trailers'] = entry
@@ -115,7 +117,8 @@ class AutocompleteHandler:
             parent, 
             items=self.mappings.get('drivers_names', []),
             mapping_dict=self.mappings.get('drivers', {}),
-            width=40, 
+            width=35,
+            height=12, 
             placeholder="Seleccione un chofer..."
         )
         self.entries['drivers'] = entry
@@ -127,7 +130,8 @@ class AutocompleteHandler:
             parent, 
             items=self.mappings.get('customers_names', []),
             mapping_dict=self.mappings.get('customers', {}),
-            width=40, 
+            width=35,
+            height=12, 
             placeholder="Seleccione un cliente..."
         )
         self.entries['customers'] = entry
@@ -139,7 +143,7 @@ class AutocompleteHandler:
             parent, 
             items=self.mappings.get('materials_names', []),
             mapping_dict=self.mappings.get('materials', {}),
-            width=40, 
+            width=35, 
             placeholder="Seleccione un material..."
         )
         self.entries['materials'] = entry

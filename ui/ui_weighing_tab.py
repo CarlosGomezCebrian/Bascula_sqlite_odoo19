@@ -2,17 +2,14 @@
 
 import tkinter as tk
 import datetime
-import logging
 from tkinter import ttk, messagebox  
 from logic.logic_scale_manager import ScaleManager
-from logic.logic_autocomplete import AutocompleteHandler
 from logic.logic_weighing import WeighingLogic
+from logic.logic_weighing_video import WeighingVideo
 from logic.logic_weighing_automatic_close import AutomaticClose
 from logic.logic_print_folios import print_weighing_ticket
 from db_operations.db_save_folio import WeighingDBManager
-from logic.logic_tables_weighings import PendingWeighingsTable 
-
-# Importar el logger configurado
+from logic.logic_tables_weighings import PendingWeighingsTable
 from utils.logger_config import app_logger
 
 class PesajeTab:
@@ -38,8 +35,7 @@ class PesajeTab:
         
         # Inicializar el manager de base de datos
         self.db_manager = WeighingDBManager()
-
-        # Primero definir el método de callback antes de crear ScaleManager
+        self.video_manager = WeighingVideo()
         self.update_weight_display = self._create_weight_display_callback()
         
         # Inyectar dependencias
@@ -98,24 +94,42 @@ class PesajeTab:
         self.date_label = ttk.Label(
             self.frame, 
             text=f"Fecha y Hora Actual: {self.fecha_actual}", 
-            font=("Helvetica", 10, "bold"),
+            font=("bold"),
             style="TLabel"
         )
         # Empaquetar en la parte superior del frame principal
         self.date_label.pack(fill=tk.X, padx=5, pady=(5, 0)) 
         
+        # CREAR FRAME CONTENEDOR PARA LOS DOS LABELFRAMES
+        self.horizontal_container = ttk.Frame(self.frame, style="TFrame")
+        self.horizontal_container.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
+        
         self.entrada_frame = ttk.LabelFrame(
-            self.frame, 
-            text="Registro de Pesaje", # Título estático
+            self.horizontal_container,  # ¡CAMBIAR: usar el contenedor horizontal!
+            text="Registro de Pesaje",
             style="TFrame",
             padding=10
         )
         
-        self.entrada_frame.pack(fill=tk.X, padx=5, pady=(5, 5))
+        self.video_frame = ttk.LabelFrame(
+            self.horizontal_container,  # ¡CAMBIAR: usar el contenedor horizontal!
+            text="Video/imagen",
+            style="TFrame",
+            padding=10
+        )
         
+        # Usar grid en el contenedor horizontal (que solo tiene estos dos frames)
+        self.entrada_frame.grid(row=0, column=0, sticky="nsew", padx=5, pady=5)
+        self.video_frame.grid(row=0, column=1, sticky="nsew", padx=5, pady=5)
+
+        # Configurar expansión del contenedor horizontal
+        #self.horizontal_container.columnconfigure(0, weight=1)
+        self.horizontal_container.columnconfigure(1, weight=1)
+        self.horizontal_container.rowconfigure(0, weight=1)
+        self.video_frame.grid_propagate(False)  
         # Folio justo después del texto del LabelFrame
         self._create_folio_section(self.entrada_frame)
-                
+                    
         # Vehículo
         ttk.Label(self.entrada_frame, text="Vehículo:", style="TLabel").grid(row=1, column=0, sticky=tk.W, padx=5, pady=10)
         self.vehicle_entry = self.autocomplete_handler.create_vehicle_entry(self.entrada_frame)
@@ -143,19 +157,19 @@ class PesajeTab:
         
         # Campos simples notas
         ttk.Label(self.entrada_frame, text="Notas:\n(Datos externos)", style="TLabel").grid(row=6, column=0, sticky=tk.W, padx=5, pady=10)
-        self.notes_entry = tk.Text(self.entrada_frame, font=("Helvetica", 10), borderwidth=0, width=40, height=4)
+        self.notes_entry = tk.Text(self.entrada_frame, font=("Helvetica", 12), borderwidth=0, width=40, height=4)
         self.notes_entry.grid(row=6, column=1, padx=5, pady=10)
         
-        # Peso actual
-        ttk.Label(self.entrada_frame, text="Peso actual:", style="TLabel").grid(row=7, column=0, sticky=tk.W, padx=5, pady=5)
-        self.weight_label = ttk.Label(self.entrada_frame, text="0 kg",  font=("Helvetica",30 , "bold"), foreground="green")
-        self.weight_label.grid(row=7, column=1, padx=5, pady=5)
+        
         
         # Controles de báscula
-        self._create_scale_controls(self.entrada_frame)
+        self._create_scale_controls(self.frame)
         
         # Botones de acción
         self._create_action_buttons()
+
+        # Crear sección de video con 4 cámaras
+        #self._create_video_section()
 
         # Contenedor para la tabla de pesajes pendientes
         self._create_pending_table_section()
@@ -170,11 +184,11 @@ class PesajeTab:
         folio_frame.grid(row=0, column=0, columnspan=2, sticky='ew', pady=(0, 10))
         
         # Folio alineado a la izquierda
-        ttk.Label(folio_frame, text="Folio:", style="TLabel",font=("Helvetica", 10, "bold")
-        ).pack(side=tk.LEFT, padx=(0, 5))
+        ttk.Label(folio_frame, text="Folio:", style="TLabel",font=("bold")
+        ).pack(side=tk.LEFT, padx=(5, 20))
         
         self.folio_entry = tk.Entry(
-            folio_frame, font=("Helvetica", 10), borderwidth=0,width=15,relief="solid", state="readonly", background="#f0f0f0")
+            folio_frame, font=("Helvetica", 14, "bold"), borderwidth=0,width=20,relief="solid", state="readonly", background="#f0f0f0")
         self.folio_entry.pack(side=tk.LEFT)
         # Botón para refrescar
         ttk.Button(folio_frame,text="Limpiar", width=10, cursor="hand2", command=self.refresh_folio_list
@@ -189,17 +203,20 @@ class PesajeTab:
         self.logger.debug("Creando controles de báscula")
         
         scale_control_frame = ttk.Frame(parent, style="TFrame")
-        scale_control_frame.grid(row=7, column=2, columnspan=2, pady=10)
+        scale_control_frame.pack(fill=tk.X, padx=5, pady=5)
 
-        self.btn_scale_control = ttk.Button(scale_control_frame, text="▶ Conectar", style="Warning.TButton",
-                                    cursor="hand2",  width=15, command=self._connect_disconnect)
-        self.btn_scale_control.pack(side=tk.LEFT, padx=5) 
+        # Peso actual
+        ttk.Label(scale_control_frame, text="Peso actual:", style="TLabel").pack(side=tk.LEFT, padx=20)
+        self.weight_label = ttk.Label(scale_control_frame, text="0 kg",  font=("Helvetica",30 , "bold"), foreground="green")
+        self.weight_label.pack(side=tk.LEFT, padx=80)
+
+        self.btn_scale_control = ttk.Button(scale_control_frame, text="▶ Conectar", style="Warning.TButton", cursor="hand2",  width=15, command=self._connect_disconnect)
+        self.btn_scale_control.pack(side=tk.LEFT, padx=20) 
 
         self.scale_status_label = ttk.Label(scale_control_frame, text="Desconectada", style="TLabel")
         self.use_simulator_var = tk.BooleanVar(value=False)
         self.check_active = ttk.Checkbutton(scale_control_frame, text="Simulador de desactivado",  
-                                   variable=self.use_simulator_var,  style="Orange.TCheckbutton",  command=self._on_simulator_changed)
-    
+        variable=self.use_simulator_var,  style="Orange.TCheckbutton",  command=self._on_simulator_changed)    
         self.scale_status_label.pack(side=tk.LEFT, padx=10)
         if  self.user_access_level > 3:
             self.check_active.pack(side=tk.LEFT, padx=10)
@@ -320,6 +337,90 @@ class PesajeTab:
                 notes_text_widget.mark_set(tk.INSERT, end_pos)
             else:
                  notes_text_widget.mark_set(tk.INSERT, tk.END)
+
+    def _create_video_section(self):
+        """Crear sección de video con 4 cámaras en grid 2x2 manteniendo relación de aspecto"""
+        self.logger.debug("Creando sección de video con 2 cámaras")
+        
+        # Configurar grid para el frame de video
+        self.video_frame.columnconfigure(0, weight=1)
+        self.video_frame.columnconfigure(1, weight=1)
+        self.video_frame.rowconfigure(0, weight=1)
+        self.video_frame.rowconfigure(1, weight=1)
+        
+        # Crear los 4 frames para las cámaras
+        self.camera_frames = {}
+        #camera_labels = ['Cámara 1', 'Cámara 2']
+        camera_labels = ['Cámara frente', 'Cámara atras', 'Imagen inició frente', 'Imagen inició atras']
+
+        
+        for i, label in enumerate(camera_labels):
+            row = i // 2  # 0, 0, 1, 1
+            col = i % 2   # 0, 1, 0, 1
+            
+            # Frame individual para cada cámara
+            cam_frame = ttk.LabelFrame(
+                self.video_frame,
+                text=label,
+                style="TFrame",
+                padding=3
+            )
+            cam_frame.grid(row=row, column=col, sticky="nsew", padx=2, pady=2)
+            
+            # Configurar expansión del frame de cámara
+            cam_frame.columnconfigure(0, weight=1)
+            cam_frame.rowconfigure(0, weight=1)
+
+            # Frame contenedor para el canvas (ayuda con el redimensionamiento)
+            canvas_container = ttk.Frame(cam_frame, style="TFrame")
+            canvas_container.grid(row=0, column=0, sticky="nsew")
+            canvas_container.columnconfigure(0, weight=1)
+            canvas_container.rowconfigure(0, weight=1)
+            
+            # Canvas para mantener relación de aspecto (en lugar de Label)
+            video_canvas = tk.Canvas(
+                cam_frame,
+                bg="black",
+                highlightthickness=1,
+                highlightbackground="#555555",
+                relief="solid"
+            )
+            video_canvas.grid(row=0, column=0, sticky="nsew")
+            
+            # Label para estado/texto (sobre el canvas)
+            status_label = ttk.Label(
+                video_canvas,
+                text=f"📷 {label}\nConectando...",
+                style="TLabel",
+                background="black",
+                foreground="white",
+                anchor="center",
+                font=("Helvetica", 10)
+            )
+            
+            # Centrar el label en el canvas
+            video_canvas.create_window(
+                video_canvas.winfo_reqwidth() // 2, 
+                video_canvas.winfo_reqheight() // 2,
+                window=status_label
+            )
+            
+            # Guardar referencia para futuras actualizaciones
+            self.camera_frames[f'camera_{i+1}'] = {
+                'frame': cam_frame,
+                'canvas_container': canvas_container,
+                'canvas': video_canvas,
+                'status_label': status_label,
+                'current_image': None,
+                'original_image': None,
+                'aspect_ratio': 16/9,  # Relación de aspecto por defecto (16:9)
+                'status': 'disconnected'
+            }
+            camera_frames = self.camera_frames
+            # Bind para redimensionar manteniendo relación de aspecto
+            video_canvas.bind('<Configure>', lambda e, cam_id=f'camera_{i+1}': self.video_manager.resize_camera_feed(cam_id, camera_frames))
+        
+        self.logger.debug("Sección de video creada con 4 cámaras manteniendo relación de aspecto")
 
     def _setup_managers(self):
         """Configurar los managers después de crear la UI"""

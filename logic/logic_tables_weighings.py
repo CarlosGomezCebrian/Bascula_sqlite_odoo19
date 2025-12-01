@@ -53,7 +53,7 @@ class PendingWeighingsTable:
         self.count_label = ttk.Label(
             header_frame,
             text="Cargando...",
-            font=("Helvetica", 10),
+            font=("Helvetica", 12),
             foreground="#7f8c8d"
         )
         self.count_label.pack(side=tk.RIGHT, padx=10)
@@ -164,6 +164,7 @@ class PendingWeighingsTable:
             background="#ffffff",
             foreground="#2c3e50",
             rowheight=25,
+            font=("Helvetica", 10),
             fieldbackground="#ffffff",
             bordercolor="#333333",
             borderwidth=1

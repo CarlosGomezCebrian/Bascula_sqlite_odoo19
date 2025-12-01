@@ -20,9 +20,9 @@ class AppStyles:
         self.login_bg = "#FDFAFD"
         self.login_text = "#714B67"
         self.entry_second_color = "#7E7F80"
-        self.font_base = ("Helvetica", 10)
-        self.font_title = ("Helvetica", 12)
-        self.font_heading = ("Helvetica", 14)
+        self.font_base = ("Helvetica", 12)
+        self.font_title = ("Helvetica", 13)
+        self.font_heading = ("Helvetica", 15)
 
         
 
@@ -158,7 +158,7 @@ class MainApp:
         company_name = ttk.Label(header_frame, text=company_name, style="Header.TLabel")
         company_name.pack(side=tk.LEFT, padx=80)
 
-        user_name_label = ttk.Label(header_frame, text=f"Hola  {self.user_name}", style="Header.TLabel")
+        user_name_label = ttk.Label(header_frame, text=f"Hola:  {self.user_name}", style="Header.TLabel")
         user_name_label.pack(side=tk.LEFT, padx=50)
         
         self.status_label = ttk.Label(header_frame, text="", style="Header.TLabel")

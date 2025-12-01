@@ -44,7 +44,7 @@ def setup_environment():
     app_logger.info("Iniciando configuración del entorno de la aplicación")
     
     # Verificar y crear estructura de directorios necesarios
-    necessary_dirs = ['logs', 'exports', 'temp']
+    necessary_dirs = ['logs']
     for directory in necessary_dirs:
         if not os.path.exists(directory):
             os.makedirs(directory)

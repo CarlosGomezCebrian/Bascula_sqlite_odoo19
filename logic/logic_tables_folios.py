@@ -66,7 +66,7 @@ class FoliosWeighingsTable:
         self.count_label = ttk.Label(
             header_frame,
             text="Cargando...",
-            font=("Helvetica", 10),
+            font=("Helvetica", 12),
             foreground="#7f8c8d"
         )
         self.count_label.pack(side=tk.RIGHT, padx=10)
@@ -97,7 +97,7 @@ class FoliosWeighingsTable:
         column_config = {
             'id': ('Id',0, 'center'),
             'folio': ('Folio', 50, 'center'),
-            'date_start': ('Fecha inicio', 110, 'center'),
+            'date_start': ('Fecha inició', 110, 'center'),
             'date_end': ('Fecha fin', 110, 'center'),
             'days_open_folio':('Días abierto',90, 'center'),
             'user': ('Usuario',90 , 'center'),
@@ -175,6 +175,7 @@ class FoliosWeighingsTable:
             background="#ffffff",
             foreground="#2c3e50",
             rowheight=25,
+            font=("Helvetica", 10),
             fieldbackground="#ffffff",
             bordercolor="#333333",
             borderwidth=1

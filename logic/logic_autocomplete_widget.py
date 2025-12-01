@@ -6,11 +6,12 @@ import unicodedata
 
 class CustomAutocompleteEntry:
     
-    def __init__(self, parent, items, mapping_dict=None, width=30, height=8, placeholder=""):  
+    def __init__(self, parent, items, mapping_dict=None, width=35, height=12, placeholder=""):  
         self.parent = parent
         self.items = items
         self.mapping_dict = mapping_dict or {}
         self.filtered_items = items.copy()
+        self.width = width
         self.placeholder = placeholder
         self.is_placeholder = bool(placeholder)     
         
@@ -18,7 +19,7 @@ class CustomAutocompleteEntry:
         self.frame = ttk.Frame(parent)
         
         # Entry
-        self.entry = tk.Entry(self.frame, width=width, font=("Helvetica", 10), borderwidth=0)
+        self.entry = tk.Entry(self.frame, width=self.width, font=("Helvetica", 12), borderwidth=0)
         self.entry.pack(side=tk.TOP, fill=tk.X)
         
         # Configurar placeholder si existe
@@ -37,9 +38,9 @@ class CustomAutocompleteEntry:
         
         self.listbox = tk.Listbox(
             listbox_frame, 
-            width=width, 
+            width=self.width, 
             height=height, 
-            font=("Arial", 10),
+            font=("Helvetica", 12),
             relief='flat',           
             bd=0,                    
             highlightthickness=0,    
@@ -59,10 +60,18 @@ class CustomAutocompleteEntry:
         self.listbox_visible = False
         self._select_callback = None
         
+        # Tooltip para mostrar texto completo
+        self.tooltip = tk.Toplevel(parent)
+        self.tooltip.withdraw()
+        self.tooltip.overrideredirect(True)
+        self.tooltip.configure(bg='lightyellow', relief='solid', bd=1)
+        self.tooltip_label = tk.Label(self.tooltip, text="", bg='lightyellow', 
+                                     font=("Helvetica", 10), justify=tk.LEFT)
+        self.tooltip_label.pack(padx=2, pady=2)
+        
         # Configurar eventos
         self.setup_events()
         self.update_listbox()
-
 
     def set_select_callback(self, callback):
         """Permite establecer una función callback que se ejecutará al seleccionar un item."""
@@ -118,6 +127,7 @@ class CustomAutocompleteEntry:
             
             if event.keysym == 'Escape':
                 self.hide_listbox()
+                self.hide_tooltip()
                 return
             
             if event.keysym == 'Return':
@@ -148,6 +158,7 @@ class CustomAutocompleteEntry:
             
             if event.keysym == 'Escape':
                 self.hide_listbox()
+                self.hide_tooltip()
                 self.entry.focus_set()
                 return "break"
             
@@ -171,6 +182,22 @@ class CustomAutocompleteEntry:
         
         def on_listbox_click(event):
             self.select_item()
+        
+        def on_listbox_motion(event):
+            """Mostrar tooltip al mover el mouse sobre el listbox"""
+            index = self.listbox.nearest(event.y)
+            if 0 <= index < len(self.filtered_items):
+                full_text = self.filtered_items[index]
+                if len(full_text) > 45:  # Solo mostrar tooltip para textos largos
+                    self.show_tooltip(full_text, event.x_root, event.y_root)
+                else:
+                    self.hide_tooltip()
+            else:
+                self.hide_tooltip()
+        
+        def on_listbox_leave(event):
+            """Ocultar tooltip al salir del listbox"""
+            self.hide_tooltip()
         
         def on_entry_click(event):
             # Si hay placeholder, limpiarlo al hacer clic
@@ -204,8 +231,23 @@ class CustomAutocompleteEntry:
         self.listbox.bind('<KeyPress>', on_listbox_key)
         self.listbox.bind('<Button-1>', on_listbox_click)
         self.listbox.bind('<Double-Button-1>', on_listbox_click)
+        self.listbox.bind('<Motion>', on_listbox_motion)
+        self.listbox.bind('<Leave>', on_listbox_leave)
         
         self.parent.bind('<Configure>', lambda e: self.position_listbox())
+    
+    def show_tooltip(self, text, x_root, y_root):
+        """Mostrar tooltip con texto completo"""
+        self.tooltip.deiconify()
+        x = x_root + 15
+        y = y_root + 15
+        self.tooltip.wm_geometry(f"+{x}+{y}")
+        self.tooltip_label.config(text=text)
+        self.tooltip.lift()
+    
+    def hide_tooltip(self):
+        """Ocultar tooltip"""
+        self.tooltip.withdraw()
     
     def position_listbox(self):
         """Método de posicionamiento"""
@@ -238,10 +280,16 @@ class CustomAutocompleteEntry:
         self.update_listbox()
     
     def update_listbox(self):
-        """Actualizar el contenido del Listbox"""
+        """Actualizar el contenido del Listbox con texto truncado y tooltip"""
         self.listbox.delete(0, tk.END)
+        
+        max_chars = 60  # Máximo de caracteres a mostrar
+        
         for item in self.filtered_items:
-            self.listbox.insert(tk.END, item)
+            display_text = item
+            if len(item) > max_chars:
+                display_text = item[:max_chars-3] + "..."
+            self.listbox.insert(tk.END, display_text)
     
     def show_listbox(self):
         """Mostrar el Listbox en posición absoluta"""
@@ -252,7 +300,7 @@ class CustomAutocompleteEntry:
             self.listbox_visible = True
             self.position_listbox()
             self.listbox_window.lift()
-        # *** NUEVO: Capturar el clic en cualquier parte de la aplicación ***
+        # Capturar el clic en cualquier parte de la aplicación
         self.entry.winfo_toplevel().bind_all('<Button-1>', self.check_click_outside)
     
     def hide_listbox(self):
@@ -260,8 +308,9 @@ class CustomAutocompleteEntry:
         if self.listbox_window.winfo_exists() and self.listbox_window.winfo_viewable():
             self.listbox_window.withdraw()
             self.listbox_visible = False
+            self.hide_tooltip()
 
-        # *** NUEVO: Liberar el enlace de clic ***
+        # Liberar el enlace de clic
             self.entry.winfo_toplevel().unbind_all('<Button-1>')
 
     def check_click_outside(self, event):
@@ -280,6 +329,7 @@ class CustomAutocompleteEntry:
         
         if not is_inside_listbox and not is_inside_entry:
             self.hide_listbox()
+            self.hide_tooltip()
 
         # Si el clic NO está en el listbox O en el entry
         is_outside_listbox = not (lx <= event.x_root < lx + lw and ly <= event.y_root < ly + lh)
@@ -288,23 +338,26 @@ class CustomAutocompleteEntry:
         # Si el clic no está ni en la lista ni en el entry, ocúltala
         if is_outside_listbox and is_outside_entry:
             self.hide_listbox()
+            self.hide_tooltip()
     
     def check_focus(self):
         """Verificar si aún tenemos el foco"""
         focused_widget = self.parent.focus_get()
         if focused_widget not in [self.entry, self.listbox]:
             self.hide_listbox()
+            self.hide_tooltip()
     
     def select_item(self):
         """Seleccionar item del Listbox"""
         selection = self.listbox.curselection()
         if selection:
-            selected_text = self.listbox.get(selection[0])
+            selected_text = self.filtered_items[selection[0]]  # Obtener texto completo, no el truncado
             self.entry.delete(0, tk.END)
             self.entry.insert(0, selected_text)
             self.entry.configure(foreground='black')
             self.is_placeholder = False
             self.hide_listbox()
+            self.hide_tooltip()
             self.entry.focus_set()
 
             if self._select_callback:
@@ -334,6 +387,7 @@ class CustomAutocompleteEntry:
                 self.entry.configure(foreground='gray')
                 self.is_placeholder = True
         self.hide_listbox()
+        self.hide_tooltip()
     
     def clear(self):
         """Limpiar el entry"""
@@ -352,6 +406,8 @@ class CustomAutocompleteEntry:
         self.entry.focus_set()
     
     def destroy(self):
-        """Destruir la ventana del listbox al cerrar"""
+        """Destruir la ventana del listbox y tooltip al cerrar"""
         if self.listbox_window:
             self.listbox_window.destroy()
+        if self.tooltip:
+            self.tooltip.destroy()
