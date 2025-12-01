@@ -358,7 +358,8 @@ class OdooAPI:
                 'x_studio_scale_user_start': record['user_name_open'],
                 'x_studio_scale_user_end': record['user_name_closed'] or "",
                 'x_studio_notas': record['notes'],
-                'x_studio_weight_original': record['weight_original'] or 0
+                'x_studio_weight_original': record['weight_original'] or 0,
+                'x_studio_kanban_state': "normal"
             }
             
             self.logger.debug(f"Datos preparados para Odoo: {odoo_data}")
