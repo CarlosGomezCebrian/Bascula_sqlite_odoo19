@@ -256,10 +256,10 @@ class WeighingLogic:
         return net_weight
     
     def register_weighing(self, tipo_pesaje, db_manager):
-        """Registrar un pesaje (entrada o salida)"""
+        """Registrar un pesaje (entrada, salida o salida c/peso)"""
         self.logger.info(f"📝 Iniciando registro de pesaje: {tipo_pesaje}")
         
-        # Validar campos obligatorios
+        
         if not self._validate_required_fields(tipo_pesaje):
             self.logger.error("❌ Registro fallido - Campos obligatorios incompletos")
             return None, None
@@ -271,18 +271,22 @@ class WeighingLogic:
         self.logger.info(f"📊 Datos procesados - Cliente: {datos['customer_nombre']}, Material: {datos['material_name']}, Peso: {datos['weight']}")
         
         if tipo_pesaje == 'Entrada':
+            weighing_type = tipo_pesaje
             self.input_weighing = datos
             if customer_discount > 0 and material_spd == 1:
                 self.logger.info("🔔 Aplicando descuento ALM2")
-                new_datos, weighing_data_alm2 = self._create_weighing_input_alm2(datos)
+                new_datos, weighing_data_alm2 = self._create_weighing_input_alm2(datos, weighing_type)
                 db_manager.save_weighing_record(weighing_data_alm2)
                 datos = new_datos
 
-            weighing_data = self._create_weighing_input(datos)
-        else:
-            tipo_pesaje == 'Salida'
+            weighing_data = self._create_weighing_input(datos, weighing_type)
+        elif tipo_pesaje == 'Salida':
+            weighing_type = tipo_pesaje
             self.output_weighing = datos
-            weighing_data = self._create_weighing_output(datos)
+            weighing_data = self._create_weighing_output(datos, weighing_type)
+        else:
+            weighing_type = tipo_pesaje
+            weighing_data = self._create_weighing_input(datos, weighing_type)
         
         self.logger.info(f"💾 Guardando registro en base de datos - Folio: {datos['folio']}")
         exito, siguiente_folio = db_manager.save_weighing_record(weighing_data)
@@ -312,7 +316,7 @@ class WeighingLogic:
         self.logger.debug(f"🔢 Redondeo: {weight} -> {rounded}")
         return rounded
     
-    def _create_weighing_input_alm2(self, datos):
+    def _create_weighing_input_alm2(self, datos, weighing_type):
         """Crear objeto de pesaje para entrada (peso bruto) al ALM2""" 
         self.logger.info("🔄 Creando pesaje ALM2 con descuento")
         
@@ -331,7 +335,7 @@ class WeighingLogic:
             'folio': datos['folio'],
             'weight': weight_round_original,
             'fecha_hora': datos['fecha_hora'],
-            'tipo_pesaje': 'Entrada',
+            'tipo_pesaje': weighing_type,
             'vehicle_id': datos['vehicle_id'],
             'trailer_id': datos['trailer_id'],
             'driver_id': datos['driver_id'],
@@ -362,13 +366,13 @@ class WeighingLogic:
             id_driver=datos['driver_id'],
             id_material=datos['material_id'],
             id_usuario=datos['id_usuario'],
-            tipo_pesaje='Entrada'
+            tipo_pesaje= weighing_type
         )
         
         self.logger.info(f"✅ Pesaje ALM2 creado - Folio: {weighing_data_alm2.folio}")
         return new_datos, weighing_data_alm2
     
-    def _create_weighing_input(self, datos):
+    def _create_weighing_input(self, datos, weighing_type):
         """Crear objeto de pesaje para entrada (peso bruto)"""
         self.logger.info("🔄 Creando pesaje de entrada")
 
@@ -392,13 +396,13 @@ class WeighingLogic:
             id_driver=datos['driver_id'],
             id_material=datos['material_id'],
             id_usuario=datos['id_usuario'],
-            tipo_pesaje='Entrada'
+            tipo_pesaje=weighing_type
         )
         
         self.logger.info(f"✅ Pesaje entrada creado - Folio: {weighing_data.folio}, Peso: {weighing_data.gross_weight}")
         return weighing_data
     
-    def _create_weighing_output(self, datos):
+    def _create_weighing_output(self, datos, weighing_type):
         """Crear objeto de pesaje para salida (peso tara)"""
         self.logger.info("🔄 Creando pesaje de salida")
         
@@ -426,10 +430,10 @@ class WeighingLogic:
             id_material=datos['material_id'],
             id_usuario=datos['id_usuario'],
             notes=datos['notes'],
-            tipo_pesaje='Salida'
+            tipo_pesaje=weighing_type
         )
         
-        self.logger.info(f"✅ Pesaje salida creado - Folio: {weighing_data.folio}, Tara: {weighing_data.tare_weight}")
+        self.logger.info(f"✅ Pesaje {weighing_type} creado - Folio: {weighing_data.folio}, Tara: {weighing_data.tare_weight}")
         return weighing_data
 
     def calculate_weight_alm2(self, gross_weight, tare_weight, customer_name):
@@ -437,8 +441,8 @@ class WeighingLogic:
         self.logger.info(f"🧮 Calculando peso ALM2 para cliente: {customer_name}")
         
         original_grooss_weight = int(gross_weight)
-        origiinal_tare_weight = int(tare_weight)
-        original_net_weight = original_grooss_weight - origiinal_tare_weight
+        original_tare_weight = int(tare_weight)
+        original_net_weight = original_grooss_weight - original_tare_weight
 
         if self.autocomplete_handler:
             mappings = self.autocomplete_handler.mappings          
@@ -449,9 +453,9 @@ class WeighingLogic:
             customer_discount_porcent = (customer_discount / 100)
             new_net_weight = original_net_weight * customer_discount_porcent
             new_net_weight_round = self._round_to_5_kg(new_net_weight)
-            new_gross_weight = origiinal_tare_weight + new_net_weight_round
+            new_gross_weight = original_tare_weight + new_net_weight_round
             new_net_weight_ALM2 = original_net_weight - new_net_weight_round
-            new_gross_weight_ALM2 = origiinal_tare_weight + new_net_weight_ALM2
+            new_gross_weight_ALM2 = original_tare_weight + new_net_weight_ALM2
         
         result = {
             'new_gross_weight_ALM2': new_gross_weight_ALM2,
@@ -520,7 +524,7 @@ class WeighingLogic:
                         'notes': data.get('notes')
                     }
                     self.logger.info(f"💾 Guardando cierre principal - Folio: {weighing_closed_data['folio_number']}")
-                    result = db_manager.close_weighing_input(weighing_closed_data)
+                    result = db_manager.close_weighing_input_alm2(weighing_closed_data)
                     self.logger.info(f"✅ Cierre principal completado: {result}")
             else:
                 self.logger.info("🔔 Cerrando pesaje entrada normal")
@@ -543,9 +547,9 @@ class WeighingLogic:
                 result = db_manager.close_weighing_input(weighing_closed_data)
                 self.logger.info(f"✅ Cierre entrada completado: {result}")
                 
-        else:
+        elif weighing_type == 'Salida' :
             self.logger.info("🔔 Cerrando pesaje salida")
-            weighing_type == 'Salida'            
+            #weighing_type == 'Salida'            
             gross_weight = int(current_weight)
             tare_weight = int(data.get('tare_weight'))
             net_weight = self.calculate_net_weight(gross_weight, tare_weight)
@@ -564,5 +568,24 @@ class WeighingLogic:
             self.logger.info(f"💾 Guardando cierre salida - Folio: {weighing_closed_data['folio_number']}")
             result = db_manager.close_weighing_output(weighing_closed_data)
             self.logger.info(f"✅ Cierre salida completado: {result}")
-                                               
+        else:
+                self.logger.info("🔔 Cerrando pesaje entrada normal")
+                gross_weight = data.get('gross_weight')
+                tare_weight = int(current_weight) if current_simulator_state == False else int(current_weight) - 19000
+                net_weight = self.calculate_net_weight(int(gross_weight), int(tare_weight))
+
+                weighing_closed_data = {
+                    'id_weighing': data.get('id_weighing'),
+                    'folio_number': data.get('folio_number'),
+                    'tare_weight': tare_weight,
+                    'date_end': current_date_time,
+                    'net_weight': net_weight,
+                    'id_changes': 0,
+                    'scale_record_status': "Cerrado",
+                    'id_user_closed': id_user_closed,
+                    'notes': data.get('notes')
+                }
+                self.logger.info(f"💾 Guardando cierre entrada - Folio: {weighing_closed_data['folio_number']}")
+                result = db_manager.close_weighing_input(weighing_closed_data)
+                self.logger.info(f"✅ Cierre entrada completado: {result}")                                       
         return result

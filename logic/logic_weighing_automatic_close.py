@@ -76,7 +76,7 @@ class AutomaticClose:
                         'id_user_closed': id_user_closed,
                         'notes':data.get('notes')
                     }
-                    result = db_manager.close_weighing_input(weighing_closed_data)
+                    result = db_manager.close_weighing_input_alm2(weighing_closed_data)
                     self.history_data ={                    
                         'id_weighing': data.get('id_weighing'),
                         'folio_number': data.get('folio_number'),

@@ -64,7 +64,8 @@ class PesajeTab:
                     if weight_int <=0:
                         self.weight_status = False
                         self.entrada_button.config(state="disabled")
-                        self.salida_button.config(state="disabled")
+                        self.salida_button.config(state="disabled")#btn_exit_with_weight
+                        self.btn_exit_with_weight.config(state="disabled")#btn_exit_with_weight
                         self.close_folio_button.config(state="disabled")
                         self._clear_form_automatic()
                     else:
@@ -72,6 +73,7 @@ class PesajeTab:
                         if self.btn_status:
                             self.entrada_button.config(state="normal")
                             self.salida_button.config(state="normal")
+                            self.btn_exit_with_weight.config(state="normal")#btn_exit_with_weight
                         self.logger.debug(f"Peso actualizado: {weight_text}, Estado botones: {self.btn_status}")
                         
                 except Exception as e:
@@ -208,21 +210,9 @@ class PesajeTab:
         # Peso actual
         ttk.Label(scale_control_frame, text="Peso actual:", style="TLabel").pack(side=tk.LEFT, padx=20)
         self.weight_label = ttk.Label(scale_control_frame, text="0 kg",  font=("Helvetica",30 , "bold"), foreground="green")
-        self.weight_label.pack(side=tk.LEFT, padx=80)
+        self.weight_label.pack(side=tk.LEFT, padx=100)
 
-        self.btn_scale_control = ttk.Button(scale_control_frame, text="▶ Conectar", style="Warning.TButton", cursor="hand2",  width=15, command=self._connect_disconnect)
-        self.btn_scale_control.pack(side=tk.LEFT, padx=20) 
-
-        self.scale_status_label = ttk.Label(scale_control_frame, text="Desconectada", style="TLabel")
-        self.use_simulator_var = tk.BooleanVar(value=False)
-        self.check_active = ttk.Checkbutton(scale_control_frame, text="Simulador de desactivado",  
-        variable=self.use_simulator_var,  style="Orange.TCheckbutton",  command=self._on_simulator_changed)    
-        self.scale_status_label.pack(side=tk.LEFT, padx=10)
-        if  self.user_access_level > 3:
-            self.check_active.pack(side=tk.LEFT, padx=10)
-            
-        self.logger.debug("Controles de báscula creados")
-
+        
     def _connect_disconnect(self):
         """Conectar y desconectar la bascula"""
         current_text = self.btn_scale_control.cget('text')
@@ -262,6 +252,11 @@ class PesajeTab:
                 command=lambda: self.register_weighing_wrapper('Salida'), 
                 style="Primary.TButton",state="disabled")
         self.salida_button.pack(side=tk.LEFT, padx=5)
+
+        self.btn_exit_with_weight = ttk.Button(action_frame, text="Registrar salida c/peso", cursor="hand2", 
+                command=lambda: self.register_weighing_wrapper('Salida C/peso'), 
+                style="Warning.TButton",state="disabled")
+        self.btn_exit_with_weight.pack(side=tk.LEFT, padx=5)
         
         self.cancel_button = ttk.Button(action_frame, text="Cancelar", cursor="hand2",
                 command=self.clear_form,
@@ -272,6 +267,20 @@ class PesajeTab:
                 command=lambda:self.closed_weighing_wrapper(), 
                 style="TButton",state="disabled")
         self.close_folio_button.pack(side=tk.LEFT, padx=5)
+
+        self.btn_scale_control = ttk.Button(action_frame, text="▶ Conectar", style="Warning.TButton", cursor="hand2",  width=15, command=self._connect_disconnect)
+        self.btn_scale_control.pack(side=tk.LEFT, padx=20) 
+
+        self.scale_status_label = ttk.Label(action_frame, text="Desconectada", style="TLabel")
+        self.use_simulator_var = tk.BooleanVar(value=False)
+        self.check_active = ttk.Checkbutton(action_frame, text="Simulador de desactivado",  
+        variable=self.use_simulator_var,  style="Orange.TCheckbutton",  command=self._on_simulator_changed)    
+        self.scale_status_label.pack(side=tk.LEFT, padx=10)
+        if  self.user_access_level > 3:
+            self.check_active.pack(side=tk.LEFT, padx=10)
+            
+        self.logger.debug("Controles de báscula creados")
+
 
         if self.user_access_level >=3:
             self.close_tara_button = ttk.Button(action_frame, text="Cerrar c/tara", cursor="hand2",
@@ -723,6 +732,7 @@ class PesajeTab:
             self.btn_status = True
             self.entrada_button.config(state="normal")
             self.salida_button.config(state="normal")
+            self.btn_exit_with_weight.config(state="normal")#btn_exit_with_weight
             self.close_folio_button.config(state="disabled")
             if self.user_access_level >=3:
                 self.close_tara_button.config(state="disabled")   
@@ -789,6 +799,7 @@ class PesajeTab:
                     self.btn_status = True
                     self.entrada_button.config(state="normal")
                     self.salida_button.config(state="normal")
+                    self.btn_exit_with_weight.config(state="normal")#btn_exit_with_weight
                     self.close_folio_button.config(state="disabled")
                     if self.user_access_level >=3:
                         self.close_tara_button.config(state="disabled")
@@ -803,13 +814,14 @@ class PesajeTab:
             self.btn_status = False
             self.entrada_button.config(state="disabled")
             self.salida_button.config(state="disabled")
+            self.btn_exit_with_weight.config(state="disabled")#btn_exit_with_weight
             self.close_folio_button.config(state="normal")
             if weighing_type == "Entrada" and self.user_access_level >=3:            
                 self.close_tara_button.config(state="normal")
             elif weighing_type != "Entrada" and self.user_access_level >=3:
                 self.close_tara_button.config(state="disabled")
         
-        self.logger.debug(f"Estado de botones actualizado - Entrada: {self.entrada_button['state']}, Salida: {self.salida_button['state']}")
+        self.logger.debug(f"Estado de botones actualizado - Entrada: {self.entrada_button['state']}, Salida: {self.salida_button['state']}, Salida c/peso: {self.btn_exit_with_weight['state']}")
         
     def get_frame(self):
         return self.frame

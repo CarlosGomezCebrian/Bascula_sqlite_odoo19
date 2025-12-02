@@ -309,7 +309,7 @@ class PendingWeighingsTable:
     def update_count_label(self, count):
         """Actualizar el label del contador"""
         if count == 0:
-            self.count_label.config(text="❌ No hay registros pendientes", foreground="#27ae60")
+            self.count_label.config(text="✅ No hay registros pendientes", foreground="#27ae60")
         elif count == 1:
             self.count_label.config(text="1 registro pendiente", foreground="#f4871b")
         else:

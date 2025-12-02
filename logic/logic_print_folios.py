@@ -119,7 +119,7 @@ def print_weighing_ticket(data: Dict[str, Any]) -> bool:
         logger.debug("✅ Conexión a impresora establecida")
 
         # Repetir dos veces: cliente y archivo interno
-        for copia in range(1):
+        for copia in range(2):
             logger.debug(f"📄 Imprimiendo copia {copia + 1}")
             
             # Verificar logo antes de imprimir
