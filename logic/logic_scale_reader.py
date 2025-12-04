@@ -174,7 +174,7 @@ class ScaleReader:
                         self.logger.warning(f"📥 Datos binarios recibidos: {raw_data.hex()}")
                         self._update_display_with_error("Err Dat")
                 
-                time.sleep(1)  # Reducir frecuencia de lectura
+                time.sleep(3)  # Reducir frecuencia de lectura
                     
             except Exception as e:
                 error_msg = f"❌ Error en loop de lectura: {e}"
@@ -192,7 +192,7 @@ class ScaleReader:
         timestamp = datetime.now().strftime("%H:%M:%S")
         self.last_raw_data = data
         
-        self.logger.debug(f"[{timestamp}] 📟 Datos crudos: '{data}'")
+        #self.logger.debug(f"[{timestamp}] 📟 Datos crudos: '{data}'")
         
         # LIMPIEZA DE DATOS - más agresiva
         # Remover espacios extra y caracteres no deseados

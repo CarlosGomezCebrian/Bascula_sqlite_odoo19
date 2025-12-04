@@ -1000,10 +1000,10 @@ def Send_to_print(data):
                 mensaje = str(e)
                 if mensaje_text in mensaje:
                     mensaje_en_pantalla = "La impresora no se encuentra\n o el cable no esta conectado"
-                logger.error(f"Error de impresión: {mensaje}")
+                logger.error(f"Error de impresión:{e}, {mensaje}")
                 messagebox.showerror(
                     "Error",
-                    f"⚠️ Problemas para imprimir el folio  {data['folio_number']}\n{mensaje_en_pantalla}",
+                    f"⚠️ Problemas para imprimir el folio  {data['folio_number']}\n{mensaje_en_pantalla}, {e}",
                 )
                 return None
                 

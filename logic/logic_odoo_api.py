@@ -222,7 +222,8 @@ def get_odoo_customers():
     
     domain_filter_contact = [
         ['is_company', '=', True], 
-        ['company_id', '=', trebol_company_id]
+        ['company_id', '=', trebol_company_id],
+        ['x_studio_use_scale', '=', True]
     ]
     fields = ['id', 'name', 'active', 'x_studio_referencia_ambiente', 'company_id']
     
