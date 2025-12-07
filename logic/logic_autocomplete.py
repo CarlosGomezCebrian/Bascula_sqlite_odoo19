@@ -147,6 +147,66 @@ class AutocompleteHandler:
             placeholder="Seleccione un material..."
         )
         self.entries['materials'] = entry
+        return entry
+
+    # En la clase AutocompleteHandler, cambia los nombres de las claves:
+
+    def create_vehicle_entry_manual(self, parent):
+        entry = CustomAutocompleteEntry(
+            parent, 
+            items=self.mappings.get('vehicles_names', []),
+            mapping_dict=self.mappings.get('vehicles', {}),
+            width=35,
+            height=12, 
+            placeholder="Seleccione un vehículo..."
+        )
+        self.entries['vehicles_manual'] = entry  # Cambia la clave
+        return entry
+
+    def create_trailer_entry_manual(self, parent):
+        entry = CustomAutocompleteEntry(
+            parent, 
+            items=self.mappings.get('trailers_names', []),
+            mapping_dict=self.mappings.get('trailers', {}),
+            width=35,
+            height=12, 
+            placeholder="Seleccione un remolque/contenedor..."
+        )
+        self.entries['trailers_manual'] = entry  # Cambia la clave
+        return entry
+
+    def create_driver_entry_manual(self, parent):
+        entry = CustomAutocompleteEntry(
+            parent, 
+            items=self.mappings.get('drivers_names', []),
+            mapping_dict=self.mappings.get('drivers', {}),
+            width=35,
+            height=12, 
+            placeholder="Seleccione un chofer..."
+        )
+        self.entries['drivers_manual'] = entry  # Cambia la clave
+        return entry
+
+    def create_customer_entry_manual(self, parent):
+        entry = CustomAutocompleteEntry(
+            parent, 
+            items=self.mappings.get('customers_names', []),
+            mapping_dict=self.mappings.get('customers', {}),
+            width=35,
+            height=12, 
+            placeholder="Seleccione un cliente..."
+        )
+        self.entries['customers_manual'] = entry  # Cambia la clave
+        return entry
+
+    def create_material_entry_manual(self, parent):
+        entry = CustomAutocompleteEntry(
+            parent, 
+            items=self.mappings.get('materials_names', []),
+            mapping_dict=self.mappings.get('materials', {}),
+            width=35, 
+            placeholder="Seleccione un material..."
+        )
+        self.entries['materials_manual'] = entry  # Cambia la clave
         return entry   
-       
-    
+        

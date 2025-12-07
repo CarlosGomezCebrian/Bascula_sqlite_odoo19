@@ -133,27 +133,25 @@ class SyncOperations:
             'materials': (lambda: self.materials_class.get_active_materials(), lambda m: m[2], lambda m: m[2]) 
         }
         
-        getter, name_formatter, key_formatter = data_getters.get(data_type) # Usamos .get por seguridad
+        getter, name_formatter, key_formatter = data_getters.get(data_type) 
         if not getter:
-            return # Salir si el tipo de dato no existe
+            return 
 
         data_tupla = getter()
         
         if data_tupla:
             names = [name_formatter(item) for item in data_tupla]
-            # Mapeo general (nombre visible -> ID)
-            mapping = {key_formatter(item): item[0] for item in data_tupla} # Nota: Cambié a item[0] ya que 'load_initial_data' usa el índice 0 para el ID.
+            mapping = {key_formatter(item): item[0] for item in data_tupla} 
             
-            # Lógica especial para Clientes
             if data_type == 'customers':
                 mapping = {key_formatter(item): item[1] for item in data_tupla}
-                customers_discount = {item[2]: item[3] for item in data_tupla} # item[2] es el nombre, item[3] es el descuento
-                customers_id_alm2 = {item[2]: item[4] for item in data_tupla}   # item[2] es el nombre, item[4] es el id_alm2
+                customers_discount = {item[2]: item[3] for item in data_tupla} 
+                customers_id_alm2 = {item[2]: item[4] for item in data_tupla}             
                 
-                # 1. Actualizar Mappings ESPECÍFICOS de Clientes
                 self.autocomplete_handler.mappings['customers'] = mapping
                 self.autocomplete_handler.mappings['customers_discount'] = customers_discount
                 self.autocomplete_handler.mappings['customers_id_alm2'] = customers_id_alm2
+            
             elif data_type == 'materials':
                 mapping = {key_formatter(item): item[0] for item in data_tupla}
                 material_spd = {item[2]: item[3] for item in data_tupla}
@@ -161,31 +159,49 @@ class SyncOperations:
                 self.autocomplete_handler.mappings['materials'] = mapping
                 self.autocomplete_handler.mappings['material_spd'] = material_spd
 
-            # 2. Actualizar la entrada personalizada (Widget de UI) si existe
-            if custom_entry:
-                custom_entry.items = names
-                custom_entry.mapping_dict = mapping
-                
+            # 2. Actualizar TODAS las entradas relacionadas (normales y manuales)
+            # Actualizar la entrada normal si existe
+            if data_type in self.autocomplete_handler.entries:
+                entry = self.autocomplete_handler.entries[data_type]
+                entry.items = names
+                entry.mapping_dict = mapping
+            
+            # ✅ NUEVO: Actualizar la entrada MANUAL si existe
+            manual_key = f"{data_type}_manual"
+            if manual_key in self.autocomplete_handler.entries:
+                manual_entry = self.autocomplete_handler.entries[manual_key]
+                manual_entry.items = names
+                manual_entry.mapping_dict = mapping
+            
             # 3. Actualizar mappings GENERALES en autocomplete_handler
-            # Estos son los que se usan para el autocompletado en el manejador
             self.autocomplete_handler.mappings[data_type] = mapping
             self.autocomplete_handler.mappings[f'{data_type}_names'] = names
             
-        # Si no hay datos, podrías querer borrar las listas existentes
+        # Si no hay datos, limpiar ambas entradas
         elif not data_tupla:
             print(f"No hay datos activos para {data_type}. Limpiando mappings.")
-            if custom_entry:
-                custom_entry.items = []
-                custom_entry.mapping_dict = {}
+            
+            # Limpiar entrada normal
+            if data_type in self.autocomplete_handler.entries:
+                self.autocomplete_handler.entries[data_type].items = []
+                self.autocomplete_handler.entries[data_type].mapping_dict = {}
+            
+            # ✅ NUEVO: Limpiar entrada manual
+            manual_key = f"{data_type}_manual"
+            if manual_key in self.autocomplete_handler.entries:
+                self.autocomplete_handler.entries[manual_key].items = []
+                self.autocomplete_handler.entries[manual_key].mapping_dict = {}
+            
+            # Limpiar mappings
             self.autocomplete_handler.mappings[data_type] = {}
             self.autocomplete_handler.mappings[f'{data_type}_names'] = []
+            
             if data_type == 'customers':
                 self.autocomplete_handler.mappings['customers_discount'] = {}
                 self.autocomplete_handler.mappings['customers_id_alm2'] = {}
-
-            
-            print(f"Autocomplete actualizado para {data_type}: {len(names)} registros")
-
+            elif data_type == 'materials':
+                self.autocomplete_handler.mappings['material_spd'] = {}
+                
     def show_sync_result(self, sync_type, records_processed):
         """Mostrar resultado de la sincronización"""
         self.status_label.config(text="Sincronización completa.")

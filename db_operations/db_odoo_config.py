@@ -34,7 +34,7 @@ class OdooConfig:
                 conn.commit()
                 return True
             except Exception as e:
-                print(f"Error al guardar materiales de Odoo: {e}")
+                print(f"Error al guardar datos de Odoo: {e}")
                 return False
             finally:
                 self.db_manager.close_db(conn)

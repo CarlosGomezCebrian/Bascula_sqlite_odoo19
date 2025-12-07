@@ -101,6 +101,7 @@ def test_odoo_connection():
     odoo_logger.info("Probando conexión con Odoo 19+ (/json/2/ endpoint)...")
     
     config = get_odoo_connection_config()
+    odoo_db_name= config['odoo_db_name']
     if not config:
         messagebox.showerror(
             "Error de Configuración", 
@@ -119,7 +120,7 @@ def test_odoo_connection():
         odoo_logger.info("✅ Conexión Odoo 19+ exitosa")
         messagebox.showinfo(
             "Conexión Exitosa", 
-            "✅ Conexión con Odoo 19+ exitosa\nUsando endpoint /json/2/"
+            f"✅ Conexión con {odoo_db_name} exitosa\nUsando endpoint /json/2/"
         )
         return True
     else:

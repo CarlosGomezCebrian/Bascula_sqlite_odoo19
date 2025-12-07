@@ -362,7 +362,7 @@ class OdooAPI:
                 'x_studio_kanban_state': "normal"
             }
             
-            self.logger.debug(f"Datos preparados para Odoo: {odoo_data}")
+            #self.logger.debug(f"Datos preparados para Odoo: {odoo_data}")
             
             odoo_weighing_id = record['id_status_odoo']
             self.logger.debug(f"ID de Odoo encontrado: {odoo_weighing_id}")
@@ -380,7 +380,7 @@ class OdooAPI:
 
     def _create_new_record_scale_odoo(self, odoo_data):
         self.logger.info("🆕 Iniciando creación de nuevo registro en Odoo")
-        self.logger.debug(f"Datos para creación: {odoo_data}")
+        #self.logger.debug(f"Datos para creación: {odoo_data}")
 
         try:
             registro_id = self._make_odoo_json_request(

@@ -507,9 +507,9 @@ class WeighingLogic:
                 }
                 
                 self.logger.info(f"💾 Guardando cierre ALM2 - Folio: {weighing_closed_data_alm2['folio_number']}")
-                exito = db_manager.close_weighing_input_alm2(weighing_closed_data_alm2)
-                self.logger.info(f"✅ Respuesta BD ALM2: {exito}")
-
+                result = db_manager.close_weighing_input_alm2(weighing_closed_data_alm2)
+                self.logger.info(f"✅ Respuesta BD ALM2: {result}, exito={result['exito']}")
+                exito =  result['exito']
                 if exito:
                     weighing_closed_data = {
                         'id_weighing': data.get('id_weighing'),

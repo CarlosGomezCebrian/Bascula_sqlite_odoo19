@@ -445,7 +445,7 @@ class PesajeTab:
 
         # Pasar referencia al autocomplete handler
         self.weighing_logic.set_autocomplete_handler(self.autocomplete_handler)
-        self._set_initial_folio()
+        self.set_initial_folio()
 
         if hasattr(self.vehicle_entry, 'set_select_callback'):
              self.vehicle_entry.set_select_callback(lambda val: self._handle_autocomplete_selection(val, 'vehicle')) 
@@ -472,7 +472,6 @@ class PesajeTab:
             'customer': self.customer_entry,
             'material': self.material_entry,
             'weight_label': self.weight_label,
-            'folio_entry': self.folio_entry,
             'notes': self.notes_entry
         }
         self.weighing_logic.set_ui_references(ui_references)
@@ -548,7 +547,7 @@ class PesajeTab:
         self.logger.info(f"Cargando datos del folio: {folio_data.get('folio_number', '')}")
            
         # 1. Establecer Folio (ReadOnly)
-        self.set_folio(folio_data.get('folio_number', '')) 
+        self.set_folio(folio_data.get('folio_number')) 
         self.set_entry_value(self.vehicle_entry, folio_data.get('vehicle_name', ''))
         self.set_entry_value(self.trailer_entry, folio_data.get('trailer_name', ''))
         self.set_entry_value(self.driver_entry, folio_data.get('driver_name', ''))
@@ -560,7 +559,7 @@ class PesajeTab:
         self.lock_form_fields()
         self.update_buttons_state(folio_data.get('weighing_type', ''))
         
-    def _set_initial_folio(self):
+    def set_initial_folio(self):
         """Establecer el folio inicial al cargar la pestaña"""
         folio = self.db_manager.get_next_folio()
         self.logger.debug(f"Estableciendo folio inicial: {folio}")
@@ -655,7 +654,7 @@ class PesajeTab:
         
         # Actualizar también el folio actual
         self._clear_form_automatic()
-        self._set_initial_folio()
+        self.set_initial_folio()
     
     def register_weighing_wrapper(self, tipo_pesaje):
         """Método wrapper para registrar pesaje con db_manager"""
@@ -888,7 +887,6 @@ class PesajeTab:
         try:
             # Registrar el pesaje
             result = self.weighing_logic.register_closed_weighing(data,second_user_id, self.db_manager)
-            
             if result['exito']:
                 self.logger.info(f"Folio cerrado exitosamente: {data['folio_number']}")
                 Send_to_print(result['updated_row'])
