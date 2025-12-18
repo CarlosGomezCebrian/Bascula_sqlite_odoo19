@@ -82,7 +82,7 @@ class FoliosWeighingsTable:
         # Configurar columnas
         columns = (
             'id', 'folio', 'date_start', 'date_end', 'days_open_folio', 'user', 'weighing_type', 'gross_weight','net_weight',
-            'tare_weight', 'plate', 'vehicle', 'trailer', 'driver', 'customer', 'material', 'scale_record_status','id_status_odoo', 'user_closed', 'notes', 'folio_ALM2'
+            'tare_weight', 'plate', 'vehicle', 'trailer', 'driver', 'customer', 'material', 'scale_record_status','id_status_odoo', 'user_closed', 'notes', 'folio_ALM2','weight_original'
         )
         
         # Crear Treeview con estilo mejorado - CAMBIO IMPORTANTE: 
@@ -119,7 +119,8 @@ class FoliosWeighingsTable:
             'id_status_odoo': ('Estado Odoo', 90, 'w'),
             'user_closed': ('Usuario cierre', 90, 'w'),
             'notes':('Notas',150,'w'),
-            'folio_ALM2':('F-alm2',0,'center')
+            'folio_ALM2':('F-alm2',0,'center'),
+            'weight_original':('P-Original',10,'center')
         }
         
         for col, (heading, width, anchor) in column_config.items():
@@ -305,7 +306,8 @@ class FoliosWeighingsTable:
                 weighing['id_status_odoo'],                
                 weighing['user_name_closed'],
                 weighing['notes'],
-                weighing['folio_ALM2']
+                weighing['folio_ALM2'],
+                weighing['weight_original']
             ), tags=(tag,))
         
         # Configurar colores alternados
@@ -361,7 +363,8 @@ class FoliosWeighingsTable:
                 weighing['id_status_odoo'],                
                 weighing['user_name_closed'],
                 weighing['notes'],
-                weighing['folio_ALM2']
+                weighing['folio_ALM2'],
+                weighing['weight_original']
             ), tags=(tag,))
         
         # Configurar colores alternados

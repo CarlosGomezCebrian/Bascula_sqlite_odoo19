@@ -222,9 +222,11 @@ def get_odoo_customers():
     odoo_logger.info("Solicitando clientes desde Odoo...")
     
     domain_filter_contact = [
-        ['is_company', '=', True], 
-        ['company_id', '=', trebol_company_id],
-        ['x_studio_use_scale', '=', True]
+    ['is_company', '=', True],
+    '|',  # Operador OR
+    ['company_id', '=', trebol_company_id],
+    ['company_id', '=', False],  # Empresas sin company_id
+    ['x_studio_use_scale', '=', True]
     ]
     fields = ['id', 'name', 'active', 'x_studio_referencia_ambiente', 'company_id']
     

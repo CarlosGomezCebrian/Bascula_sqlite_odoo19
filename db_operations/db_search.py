@@ -149,6 +149,7 @@ class SearchOperations:
                         wr.notes,
                         wr.saved_in_odoo,
                         wr.folio_ALM2,
+                        wr.weight_original,
                         v.plates as plates,
                         v.plates || '-' || v.vehicle_type as vehicle_name,
                         t.trailer_name as trailer_name,
@@ -258,7 +259,9 @@ class SearchOperations:
                         wr.scale_record_status,
                         wr.id_status_odoo,
                         wr.notes,
+                        wr.folio_ALM2,
                         wr.saved_in_odoo,
+                        wr.weight_original,
                         v.plates as plates,
                         v.plates || '-' || v.vehicle_type as vehicle_name,
                         t.trailer_name as trailer_name,
@@ -276,8 +279,8 @@ class SearchOperations:
                     LEFT JOIN users u ON wr.id_user = u.id_user
                     LEFT JOIN users uc ON wr.id_user_closed = uc.id_user
                     -- WHERE wr.scale_record_status = 'Cerrado'
-                    WHERE wr.folio_number NOT LIKE '%A'
-                    AND (wr.folio_number LIKE ?
+                    -- WHERE wr.folio_number NOT LIKE '%A'
+                    WHERE (wr.folio_number LIKE ?
                         OR wr.weighing_type LIKE ?
                         OR u.user_name LIKE ?
                         OR uc.user_name LIKE ? 
@@ -327,6 +330,7 @@ class SearchOperations:
                         wr.notes,
                         wr.saved_in_odoo,
                         wr.folio_ALM2,
+                        wr.weight_original,
                         v.plates as plates,
                         v.plates || '-' || v.vehicle_type as vehicle_name,
                         t.trailer_name as trailer_name,
